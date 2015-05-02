@@ -5,12 +5,12 @@ import (
 	"log"
 )
 
+// The shifted out bytes in returned in the second output
+// distance is the number of bytes to be shifted.
+// if positive, shift to the right
+// if negative, shift to the left
+// shift right is zero filled.
 func ShiftByte(in []byte, distance int) ([]byte, []byte, error) {
-	// The shifted out bytes in returned in the second output
-	// distance is the number of bytes to be shifted.
-	// if positive, shift to the right
-	// if negative, shift to the left
-	// shift right is zero filled.
 	l := len(in)
 	if l < distance {
 		return nil, nil, errors.New("Shift distance " + string(distance) + " is bigger than the length of byte array: " + string(l))
@@ -41,14 +41,16 @@ func ShiftByte(in []byte, distance int) ([]byte, []byte, error) {
 	return out, holder, nil
 }
 
+// curr in the current byte after shifting
+// adj is contains the bits after shifting, e.g. 10011110 >> 2 => curr:00100111, adj:10000000
+// distance is the number of bits to be shifted.
+// if positive, shift to the right
+// if negative, shift to the left
+// shift right is zero filled
 func ShiftBit(in byte, distance int) (byte, byte, error) {
-	// curr in the current byte after shifting
-	// adj is contains the bits after shifting, e.g. 10011110 >> 2 => curr:00100111, adj:10000000
-	// distance is the number of bits to be shifted.
-	// if positive, shift to the right
-	// if negative, shift to the left
-	// shift right is zero filled
+	var curr byte
 	var adj byte
+	curr = 0
 	adj = 0
 	if distance == 0 {
 		return in, adj, nil
@@ -56,8 +58,16 @@ func ShiftBit(in byte, distance int) (byte, byte, error) {
 	if distance > 8 || distance < 8 {
 		return adj, adj, errors.New("There are only 8 bits in 1 byte.")
 	}
+	if distance > 0 {
+		curr = in >> uint(distance)
+		adj = in << uint(8-distance)
+	}
+	if distance < 0 {
+		curr = in << uint(0-distance)
+		adj = in >> uint(8+distance)
+	}
 
-	return in, in, nil
+	return curr, adj, nil
 }
 
 func ShiftLeft(in []byte, distance int) ([]byte, error) {
