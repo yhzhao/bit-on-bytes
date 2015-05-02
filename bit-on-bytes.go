@@ -5,27 +5,40 @@ import (
 	"log"
 )
 
-func ShiftByte(in []byte, distance int) ([]byte, error) {
+func ShiftByte(in []byte, distance int) ([]byte, []byte, error) {
+	// The shifted out bytes in returned in the second output
 	// distance is the number of bytes to be shifted.
 	// if positive, shift to the right
 	// if negative, shift to the left
 	// shift right is zero filled.
 	l := len(in)
 	if l < distance {
-		return nil, errors.New("Shift distance " + string(distance) + " is bigger than the length of byte array: " + string(l))
+		return nil, nil, errors.New("Shift distance " + string(distance) + " is bigger than the length of byte array: " + string(l))
 	}
 	out := make([]byte, len(in))
+	var holder []byte
+	if distance < 0 {
+		holder = make([]byte, 0-distance)
+	} else {
+		holder = make([]byte, distance)
+	}
 	if distance > 0 {
 		for i := distance; i < l; i++ {
 			out[i] = in[i-distance]
+		}
+		for i := 0; i < distance; i++ {
+			holder[i] = in[l-distance]
 		}
 	}
 	if distance < 0 {
 		for i := 0; i < l+distance; i++ {
 			out[i] = in[0-distance+i] // [1,2,3] > [2,3,0], distance = -1
 		}
+		for i := 0; i < 0-distance; i++ {
+			holder[i] = in[i]
+		}
 	}
-	return out, nil
+	return out, holder, nil
 }
 
 func ShiftBit(in byte, distance int) (byte, byte, error) {
@@ -35,12 +48,13 @@ func ShiftBit(in byte, distance int) (byte, byte, error) {
 	// if positive, shift to the right
 	// if negative, shift to the left
 	// shift right is zero filled
-	adj := make(byte)
+	var adj byte
+	adj = 0
 	if distance == 0 {
-		return in, adj
+		return in, adj, nil
 	}
 	if distance > 8 || distance < 8 {
-		return nil, nil, errors.New("There are only 8 bits in 1 byte.")
+		return adj, adj, errors.New("There are only 8 bits in 1 byte.")
 	}
 
 	return in, in, nil
