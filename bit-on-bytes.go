@@ -84,11 +84,11 @@ func ShiftLeft(in []byte, distance int) ([]byte, error) {
 	if l < ll {
 		return nil, errors.New("Shift distance " + string(distance) + " is bigger than the length of byte array: " + string(l) + " bytes")
 	}
-	out := make([]byte, l)
 	if l == ll {
 		return out, nil
 	}
 
-	//holder := make([]byte, ll)
+	a, b, _ := ShiftByte(in, 0-div)
+
 	return out, nil
 }
